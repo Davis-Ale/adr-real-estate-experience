@@ -4,5 +4,8 @@
   "type": "module",
   "scripts": {
     "generate": "prisma generate"
+  },
+  "dependencies": {
+    "@prisma/client": "7.10.1"
   }
 }
