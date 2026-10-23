@@ -13,3 +13,4 @@ coverage/
 .windsurf/
 .agents/
 skills-lock.json
+*.tsbuildinfo
