@@ -1,0 +1,8 @@
+{
+  "name": "@adr/database",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "generate": "prisma generate"
+  }
+}

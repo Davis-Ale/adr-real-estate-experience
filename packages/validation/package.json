@@ -1,0 +1,5 @@
+{
+  "name": "@adr/validation",
+  "private": true,
+  "type": "module"
+}
