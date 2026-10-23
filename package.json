@@ -1,0 +1,12 @@
+{
+  "name": "adr-real-estate-experience",
+  "private": true,
+  "packageManager": "pnpm@10.30.2",
+  "devDependencies": {
+    "prisma": "7.10.1"
+  },
+  "dependencies": {
+    "@prisma/client": "7.10.1",
+    "zod": "^4.6.7"
+  }
+}

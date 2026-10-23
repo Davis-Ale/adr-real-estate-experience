@@ -1,0 +1,153 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum UserRole {
+  OWNER
+  ADMIN
+  MEMBER
+}
+
+enum PropertyStatus {
+  DRAFT
+  ACTIVE
+  INACTIVE
+}
+
+enum ExperienceStatus {
+  DRAFT
+  PUBLISHED
+  ARCHIVED
+}
+
+enum SceneType {
+  PROPERTY
+  EXTERIOR
+  NEIGHBORHOOD
+  STREET
+  PLACE
+  CTA
+}
+
+model Organization {
+  id        String   @id @default(cuid())
+  name      String
+  slug      String   @unique
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  users       User[]
+  properties  Property[]
+  experiences Experience[]
+}
+
+model User {
+  id             String   @id @default(cuid())
+  organizationId String
+  email          String
+  name           String?
+  role           UserRole @default(MEMBER)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  @@unique([organizationId, email])
+  @@index([organizationId])
+}
+
+model Property {
+  id             String         @id @default(cuid())
+  organizationId String
+  title          String
+  address        String
+  city           String
+  state          String
+  country        String         @default("BR")
+  latitude       Float?
+  longitude      Float?
+  status         PropertyStatus @default(DRAFT)
+  createdAt      DateTime       @default(now())
+  updatedAt      DateTime       @updatedAt
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  experiences  Experience[]
+
+  @@index([organizationId])
+}
+
+model Experience {
+  id             String           @id @default(cuid())
+  organizationId String
+  propertyId     String
+  title          String
+  slug           String
+  status         ExperienceStatus @default(DRAFT)
+  createdAt      DateTime         @default(now())
+  updatedAt      DateTime         @updatedAt
+
+  organization Organization      @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  property     Property          @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+  scenes       ExperienceScene[]
+  events       AnalyticsEvent[]
+
+  @@unique([organizationId, slug])
+  @@index([organizationId])
+  @@index([propertyId])
+}
+
+model ExperienceScene {
+  id           String    @id @default(cuid())
+  experienceId String
+  type         SceneType
+  title        String?
+  description  String?
+  position     Int
+  latitude     Float?
+  longitude    Float?
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  experience Experience @relation(fields: [experienceId], references: [id], onDelete: Cascade)
+  places     Place[]
+
+  @@unique([experienceId, position])
+  @@index([experienceId])
+}
+
+model Place {
+  id                String   @id @default(cuid())
+  experienceSceneId String
+  provider          String
+  providerPlaceId   String?
+  name              String
+  category          String?
+  latitude          Float
+  longitude         Float
+  distanceMeters    Int?
+  durationSeconds   Int?
+  createdAt         DateTime @default(now())
+
+  experienceScene ExperienceScene @relation(fields: [experienceSceneId], references: [id], onDelete: Cascade)
+
+  @@index([experienceSceneId])
+}
+
+model AnalyticsEvent {
+  id           String   @id @default(cuid())
+  experienceId String
+  type         String
+  sessionId    String?
+  metadata     Json?
+  createdAt    DateTime @default(now())
+
+  experience Experience @relation(fields: [experienceId], references: [id], onDelete: Cascade)
+
+  @@index([experienceId])
+  @@index([createdAt])
+}
